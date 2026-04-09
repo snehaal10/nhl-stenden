@@ -1,0 +1,66 @@
+class AmountExceededError(Exception):
+    """Exception raised when withdrawal exceeds available balance."""
+    pass
+
+class DepositLimitError(Exception):
+    """Exception raised when a single deposit exceeds the allowed limit."""
+    pass
+
+class BankAccount:
+    """
+    A class representing a bank account with modular deposit and withdrawal logic.
+    Follows PEP 8 guidelines and utilizes custom exception handling.
+    """
+    
+    DEPOSIT_LIMIT = 10000
+
+    def __init__(self, initial_balance: int = 0):
+        if initial_balance < 0:
+            raise ValueError("Initial balance cannot be negative.")
+        self._balance = initial_balance
+
+    @property
+    def balance(self) -> int:
+        """Access the current balance."""
+        return self._balance
+
+    def withdraw(self, amount: int) -> int:
+        """
+        Decrements balance if funds are sufficient.
+        Raises AmountExceededError if funds are insufficient.
+        """
+        if amount > self._balance:
+            raise AmountExceededError(f"Insufficient funds. Available: {self._balance}")
+        
+        if amount <= 0:
+            raise ValueError("Withdrawal amount must be positive.")
+
+        self._balance -= amount
+        return self._balance
+
+    def deposit(self, amount: int) -> int:
+        """
+        Increments balance if within the deposit limit.
+        Raises DepositLimitError if the limit is exceeded.
+        """
+        if amount > self.DEPOSIT_LIMIT:
+            raise DepositLimitError(f"Deposit exceeds limit of {self.DEPOSIT_LIMIT}")
+        
+        if amount <= 0:
+            raise ValueError("Deposit amount must be positive.")
+
+        self._balance += amount
+        return self._balance
+
+# Example of how to use the modular code
+if __name__ == "__main__":
+    try:
+        user_balance = int(input("Enter initial balance: "))
+        my_bank = BankAccount(user_balance)
+        
+        withdraw_amt = int(input("Enter amount to withdraw: "))
+        new_balance = my_bank.withdraw(withdraw_amt)
+        print(f"Withdrawal successful. Current balance: {new_balance}")
+
+    except (AmountExceededError, DepositLimitError, ValueError) as e:
+        print(f"Transaction Failed: {e}")
